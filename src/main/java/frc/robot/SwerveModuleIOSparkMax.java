@@ -31,6 +31,8 @@ public class SwerveModuleIOSparkMax implements SwerveModuleIO {
 
     private final double absoluteOffsetRad;
 
+    private final double MAX_VELOCITY = 15.0;
+
 
     public SwerveModuleIOSparkMax(int driveId, int steerId, int steerEncoderId, String canBus, double steerOffsetRad) {
         absoluteOffsetRad = steerOffsetRad;
@@ -78,5 +80,15 @@ public class SwerveModuleIOSparkMax implements SwerveModuleIO {
     public void updateInputs(SwerveModuleIOInputs inputs) {
         inputs.drivePositionMeters = driveEncoder.getPosition();
         inputs.steerPositionRad = steerEncoder.getPosition();
+    }
+
+    @Override
+    public void setTargetDriveVelocity(double targetDriveVelocity) {
+        driveMotor.set(targetDriveVelocity / MAX_VELOCITY);
+    }
+
+    @Override
+    public void setTargetSteerPosition(double targetSteerPosition) {
+        steerMotor.set(turnPID.calculate(steerEncoder.getPosition(), targetSteerPosition));
     }
 }
