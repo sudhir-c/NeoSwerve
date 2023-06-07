@@ -15,6 +15,7 @@ public class Drive extends SubsystemBase {
 
     //m/s
     private final double maxVelocity;
+    private final double maxAngularVelocity;
 
     private SwerveModuleState[] states = new SwerveModuleState[4];
     private final SwerveModule[] modules;
@@ -37,8 +38,9 @@ public class Drive extends SubsystemBase {
                 new SwerveModule(backLeft, "BackLeft"),
                 new SwerveModule(backRight, "BackRight")
         };
-        maxVelocity = frontLeft.getMaxVelocity();
 
+        maxVelocity = frontLeft.getMaxVelocity();
+        maxAngularVelocity = maxVelocity / Math.hypot(WHEELBASE / 2, TRACKWIDTH / 2);
 
         positions = new SwerveModulePosition[] {
                 new SwerveModulePosition(),
@@ -68,4 +70,13 @@ public class Drive extends SubsystemBase {
     public void setTargetVelocity(ChassisSpeeds target) {
         targetVelocity = target;
     }
+
+    public double getMaxVelocity() {
+        return maxVelocity;
+    }
+
+    public double getMaxAngularVelocity() {
+        return maxAngularVelocity;
+    }
+
 }

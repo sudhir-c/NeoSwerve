@@ -34,7 +34,7 @@ public class SwerveModuleIOSparkMax implements SwerveModuleIO {
     private final double MAX_VELOCITY = 15.0;
 
 
-    public SwerveModuleIOSparkMax(int driveId, int steerId, int steerEncoderId, String canBus, double steerOffsetRad) {
+    public SwerveModuleIOSparkMax(int driveId, int steerId, double steerOffsetRad) {
         absoluteOffsetRad = steerOffsetRad;
         driveMotor = new CANSparkMax(driveId, CANSparkMaxLowLevel.MotorType.kBrushless);
         steerMotor = new CANSparkMax(steerId, CANSparkMaxLowLevel.MotorType.kBrushless);
@@ -48,8 +48,6 @@ public class SwerveModuleIOSparkMax implements SwerveModuleIO {
         //TODO SET CONVERSION FACTOR USING GEAR RATIOS FOR DRIVE AND STEER ENCODERS
         driveEncoder.setPositionConversionFactor(DRIVE_COEFFICIENT);
         steerEncoder.setPositionConversionFactor(STEER_COEFFICIENT);
-
-
 
         driveMotor.setIdleMode(CANSparkMax.IdleMode.kBrake);
         steerMotor.setIdleMode(CANSparkMax.IdleMode.kBrake);

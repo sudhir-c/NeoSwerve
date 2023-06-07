@@ -71,6 +71,8 @@ public class Robot extends LoggedRobot {
 //    // Initialize auto chooser
 //    chooser.addDefaultOption("Default Auto", defaultAuto);
 //    chooser.addOption("My Auto", customAuto);
+
+    RobotContainer container = new RobotContainer();
   }
 
   /** This function is called periodically during all modes. */
