@@ -24,30 +24,38 @@ public class SwerveModuleIOSparkMax implements SwerveModuleIO {
 
     private final RelativeEncoder driveEncoder;
     private final RelativeEncoder steerEncoder;
-
-
-    private SparkMaxPIDController builtinTurningPID;
-    private PIDController turnPID;
+    private SparkMaxPIDController turnPID;
 
     private final double absoluteOffsetRad;
 
     private final double MAX_VELOCITY = 10.0;
 
 
-    public SwerveModuleIOSparkMax(int driveId, int steerId, double steerOffsetRad) {
+    public SwerveModuleIOSparkMax(int driveId, int steerId, int steerEncoderId, double steerOffsetRad) {
         absoluteOffsetRad = steerOffsetRad;
+
         driveMotor = new CANSparkMax(driveId, CANSparkMaxLowLevel.MotorType.kBrushless);
         steerMotor = new CANSparkMax(steerId, CANSparkMaxLowLevel.MotorType.kBrushless);
+
+        driveMotor.restoreFactoryDefaults();
+        steerMotor.restoreFactoryDefaults();
 
         driveEncoder = driveMotor.getEncoder();
         steerEncoder = steerMotor.getEncoder();
 
-        turnPID = new PIDController(0.5,0,0);
-        turnPID.enableContinuousInput(-Math.PI, Math.PI);
+        turnPID = steerMotor.getPIDController();
+        turnPID.setPositionPIDWrappingEnabled(true);
+        turnPID.setPositionPIDWrappingMaxInput(2 * Math.PI);
+        turnPID.setPositionPIDWrappingMinInput(0);
+        turnPID.setP(1.5);
+        turnPID.setI(0.0);
+        turnPID.setD(0.0);
+        turnPID.setFF(0.0);
 
         driveEncoder.setPositionConversionFactor(DRIVE_COEFFICIENT);
         steerEncoder.setPositionConversionFactor(STEER_COEFFICIENT);
 
+        driveEncoder.setPosition(0);
         steerEncoder.setPosition(steerOffsetRad);
 
         driveMotor.setIdleMode(CANSparkMax.IdleMode.kBrake);
@@ -88,6 +96,6 @@ public class SwerveModuleIOSparkMax implements SwerveModuleIO {
 
     @Override
     public void setTargetSteerPosition(double targetSteerPosition) {
-        steerMotor.set(turnPID.calculate(steerEncoder.getPosition(), targetSteerPosition));
+        turnPID.setReference(targetSteerPosition, CANSparkMax.ControlType.kPosition);
     }
 }
