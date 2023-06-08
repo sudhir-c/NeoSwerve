@@ -11,6 +11,8 @@ public interface SwerveModuleIO {
     class SwerveModuleIOInputs {
         public double drivePositionMeters;
         public double steerPositionRad;
+
+        public double canCoderAbsolutePosition;
     }
 
 }

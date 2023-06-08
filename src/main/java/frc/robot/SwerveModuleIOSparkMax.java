@@ -1,5 +1,6 @@
 package frc.robot;
 
+import com.ctre.phoenix.sensors.CANCoder;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel;
 import com.revrobotics.RelativeEncoder;
@@ -21,21 +22,21 @@ public class SwerveModuleIOSparkMax implements SwerveModuleIO {
 
     private final CANSparkMax driveMotor;
     private final CANSparkMax steerMotor;
+    private final CANCoder canCoder;
+
 
     private final RelativeEncoder driveEncoder;
     private final RelativeEncoder steerEncoder;
     private SparkMaxPIDController turnPID;
 
-    private final double absoluteOffsetRad;
 
     private final double MAX_VELOCITY = 10.0;
 
 
     public SwerveModuleIOSparkMax(int driveId, int steerId, int steerEncoderId, double steerOffsetRad) {
-        absoluteOffsetRad = steerOffsetRad;
-
         driveMotor = new CANSparkMax(driveId, CANSparkMaxLowLevel.MotorType.kBrushless);
         steerMotor = new CANSparkMax(steerId, CANSparkMaxLowLevel.MotorType.kBrushless);
+        canCoder = new CANCoder(steerEncoderId);
 
         driveMotor.restoreFactoryDefaults();
         steerMotor.restoreFactoryDefaults();
@@ -56,7 +57,7 @@ public class SwerveModuleIOSparkMax implements SwerveModuleIO {
         steerEncoder.setPositionConversionFactor(STEER_COEFFICIENT);
 
         driveEncoder.setPosition(0);
-        steerEncoder.setPosition(steerOffsetRad);
+        steerEncoder.setPosition(Units.degreesToRadians(canCoder.getAbsolutePosition()) - steerOffsetRad);
 
         driveMotor.setIdleMode(CANSparkMax.IdleMode.kBrake);
         steerMotor.setIdleMode(CANSparkMax.IdleMode.kBrake);
@@ -87,6 +88,7 @@ public class SwerveModuleIOSparkMax implements SwerveModuleIO {
     public void updateInputs(SwerveModuleIOInputs inputs) {
         inputs.drivePositionMeters = driveEncoder.getPosition();
         inputs.steerPositionRad = steerEncoder.getPosition();
+        inputs.canCoderAbsolutePosition = canCoder.getAbsolutePosition();
     }
 
     @Override
