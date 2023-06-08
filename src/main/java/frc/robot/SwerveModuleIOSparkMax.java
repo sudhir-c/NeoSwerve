@@ -17,7 +17,7 @@ public class SwerveModuleIOSparkMax implements SwerveModuleIO {
     private static final double WHEEL_RADIUS = Units.inchesToMeters(1.95);
 
     private static final double DRIVE_COEFFICIENT = (2 * Math.PI * WHEEL_RADIUS) / (DRIVE_GEAR_RATIO);
-    private static final double STEER_COEFFICIENT = (2 * Math.PI) / (DRIVE_GEAR_RATIO);
+    private static final double STEER_COEFFICIENT = (2 * Math.PI) / (STEER_GEAR_RATIO);
 
     private final CANSparkMax driveMotor;
     private final CANSparkMax steerMotor;
