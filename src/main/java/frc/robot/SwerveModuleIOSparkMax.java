@@ -1,5 +1,9 @@
 package frc.robot;
 
+import com.ctre.phoenix.sensors.AbsoluteSensorRange;
+import com.ctre.phoenix.sensors.CANCoder;
+import com.ctre.phoenix.sensors.CANCoderConfiguration;
+import com.ctre.phoenix.sensors.SensorInitializationStrategy;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel;
 import com.revrobotics.RelativeEncoder;
@@ -21,34 +25,49 @@ public class SwerveModuleIOSparkMax implements SwerveModuleIO {
 
     private final CANSparkMax driveMotor;
     private final CANSparkMax steerMotor;
+    private final CANCoder canCoder;
+
 
     private final RelativeEncoder driveEncoder;
     private final RelativeEncoder steerEncoder;
+    private SparkMaxPIDController turnPID;
 
 
-    private SparkMaxPIDController builtinTurningPID;
-    private PIDController turnPID;
-
-    private final double absoluteOffsetRad;
-
-    private final double MAX_VELOCITY = 10.0;
+    private final double MAX_VELOCITY = 15.0;
 
 
-    public SwerveModuleIOSparkMax(int driveId, int steerId, double steerOffsetRad) {
-        absoluteOffsetRad = steerOffsetRad;
+    public SwerveModuleIOSparkMax(int driveId, int steerId, int steerEncoderId, double steerOffsetRad) {
         driveMotor = new CANSparkMax(driveId, CANSparkMaxLowLevel.MotorType.kBrushless);
         steerMotor = new CANSparkMax(steerId, CANSparkMaxLowLevel.MotorType.kBrushless);
+        canCoder = new CANCoder(steerEncoderId);
+
+        driveMotor.restoreFactoryDefaults();
+        steerMotor.restoreFactoryDefaults();
 
         driveEncoder = driveMotor.getEncoder();
         steerEncoder = steerMotor.getEncoder();
 
-        turnPID = new PIDController(0.5,0,0);
-        turnPID.enableContinuousInput(-Math.PI, Math.PI);
+        CANCoderConfiguration canCoderConfig = new CANCoderConfiguration();
+        canCoderConfig.magnetOffsetDegrees = Units.radiansToDegrees(steerOffsetRad);
+        canCoderConfig.initializationStrategy = SensorInitializationStrategy.BootToAbsolutePosition;
+        canCoderConfig.absoluteSensorRange = AbsoluteSensorRange.Unsigned_0_to_360;
+        canCoder.configAllSettings(canCoderConfig);
+
+        turnPID = steerMotor.getPIDController();
+        turnPID.setPositionPIDWrappingEnabled(true);
+        turnPID.setPositionPIDWrappingMaxInput(2 * Math.PI);
+        turnPID.setPositionPIDWrappingMinInput(0);
+        //TODO TUNE
+        turnPID.setP(1.5);
+        turnPID.setI(0.0);
+        turnPID.setD(0.0); //0.1
+        turnPID.setFF(0.0);
 
         driveEncoder.setPositionConversionFactor(DRIVE_COEFFICIENT);
         steerEncoder.setPositionConversionFactor(STEER_COEFFICIENT);
 
-        steerEncoder.setPosition(steerOffsetRad);
+        driveEncoder.setPosition(0);
+        steerEncoder.setPosition(Units.degreesToRadians(canCoder.getAbsolutePosition()) - steerOffsetRad);
 
         driveMotor.setIdleMode(CANSparkMax.IdleMode.kBrake);
         steerMotor.setIdleMode(CANSparkMax.IdleMode.kBrake);
@@ -58,9 +77,6 @@ public class SwerveModuleIOSparkMax implements SwerveModuleIO {
 
         steerMotor.setSmartCurrentLimit(20);
         steerMotor.enableVoltageCompensation(10.0);
-
-        driveEncoder.setPosition(0);
-        steerEncoder.setPosition(0);
 
         driveEncoder.setMeasurementPeriod(10);
         driveEncoder.setAverageDepth(2);
@@ -78,7 +94,8 @@ public class SwerveModuleIOSparkMax implements SwerveModuleIO {
     @Override
     public void updateInputs(SwerveModuleIOInputs inputs) {
         inputs.drivePositionMeters = driveEncoder.getPosition();
-        inputs.steerPositionRad = steerEncoder.getPosition();
+        inputs.steerPositionRad = canCoder.getPosition();
+        inputs.canCoderAbsolutePosition = canCoder.getAbsolutePosition();
     }
 
     @Override
@@ -88,6 +105,6 @@ public class SwerveModuleIOSparkMax implements SwerveModuleIO {
 
     @Override
     public void setTargetSteerPosition(double targetSteerPosition) {
-        steerMotor.set(turnPID.calculate(steerEncoder.getPosition(), targetSteerPosition));
+        turnPID.setReference(targetSteerPosition, CANSparkMax.ControlType.kPosition);
     }
 }
