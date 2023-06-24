@@ -58,6 +58,10 @@ public class Drive extends SubsystemBase {
 
     @Override
     public void periodic() {
+        for (int i = 0; i < modules.length; i++) {
+            modules[i].updateInputs();
+        }
+
         SwerveModuleState[] optimized = new SwerveModuleState[4];
         states = kinematics.toSwerveModuleStates(targetVelocity);
         SwerveDriveKinematics.desaturateWheelSpeeds(states, maxVelocity);
