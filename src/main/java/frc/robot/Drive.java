@@ -1,5 +1,6 @@
 package frc.robot;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
@@ -26,7 +27,11 @@ public class Drive extends SubsystemBase {
 
     private ChassisSpeeds targetVelocity = new ChassisSpeeds();
 
+    private GyroIO gyroIO;
+    private GyroIOInputsAutoLogged gyroInputs;
+
     public Drive(
+            GyroIO gyro,
             SwerveModuleIO frontLeft,
             SwerveModuleIO frontRight,
             SwerveModuleIO backLeft,
@@ -38,6 +43,9 @@ public class Drive extends SubsystemBase {
                 new SwerveModule(backLeft, "BackLeft"),
                 new SwerveModule(backRight, "BackRight")
         };
+
+        gyroIO = gyro;
+
 
         maxVelocity = frontLeft.getMaxVelocity();
         maxAngularVelocity = maxVelocity / Math.hypot(WHEELBASE / 2, TRACKWIDTH / 2);
@@ -58,6 +66,7 @@ public class Drive extends SubsystemBase {
 
     @Override
     public void periodic() {
+       gyroIO.updateInputs(gyroInputs);
         for (int i = 0; i < modules.length; i++) {
             modules[i].updateInputs();
         }
@@ -81,6 +90,10 @@ public class Drive extends SubsystemBase {
 
     public double getMaxAngularVelocity() {
         return maxAngularVelocity;
+    }
+
+    public Rotation2d getRotation() {
+        return Rotation2d.fromDegrees(gyroInputs.yaw);
     }
 
 }
