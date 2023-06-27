@@ -36,7 +36,7 @@ public class DefaultDrive extends CommandBase {
         xV = x.getAsDouble();
         yV = y.getAsDouble();
         thetaV = theta.getAsDouble() * (joystick.getAsBoolean() ? 1.0 : ROTATION_COEFFICIENT);
-        ChassisSpeeds target = new ChassisSpeeds(xV, yV, thetaV);
+        ChassisSpeeds target = ChassisSpeeds.fromFieldRelativeSpeeds(xV, yV, thetaV, drive.getRotation());
         drive.setTargetVelocity(target);
     }
 
