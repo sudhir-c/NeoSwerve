@@ -31,7 +31,6 @@ public class Drive extends SubsystemBase {
     private GyroIOInputsAutoLogged gyroInputs;
 
     public Drive(
-            GyroIO gyro,
             SwerveModuleIO frontLeft,
             SwerveModuleIO frontRight,
             SwerveModuleIO backLeft,
@@ -44,7 +43,6 @@ public class Drive extends SubsystemBase {
                 new SwerveModule(backRight, "BackRight")
         };
 
-        gyroIO = gyro;
 
 
         maxVelocity = frontLeft.getMaxVelocity();
