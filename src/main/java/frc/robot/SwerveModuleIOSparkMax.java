@@ -11,6 +11,8 @@ import com.revrobotics.SparkMaxPIDController;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.util.Units;
 
+import org.littletonrobotics.junction.Logger;
+
 public class SwerveModuleIOSparkMax implements SwerveModuleIO {
 
 
@@ -31,16 +33,16 @@ public class SwerveModuleIOSparkMax implements SwerveModuleIO {
     private final RelativeEncoder driveEncoder;
     private final RelativeEncoder steerEncoder;
     private SparkMaxPIDController turnPID;
+    private PIDController turnPIDSeparate = new PIDController(0,0,0);
 
 
-    private final double MAX_VELOCITY = 15.0;
+    private final double MAX_VELOCITY = 10.0;
 
 
     public SwerveModuleIOSparkMax(int driveId, int steerId, int steerEncoderId, double steerOffsetRad) {
         driveMotor = new CANSparkMax(driveId, CANSparkMaxLowLevel.MotorType.kBrushless);
         steerMotor = new CANSparkMax(steerId, CANSparkMaxLowLevel.MotorType.kBrushless);
         canCoder = new CANCoder(steerEncoderId);
-
         driveMotor.restoreFactoryDefaults();
         steerMotor.restoreFactoryDefaults();
 
@@ -57,17 +59,22 @@ public class SwerveModuleIOSparkMax implements SwerveModuleIO {
         turnPID.setPositionPIDWrappingEnabled(true);
         turnPID.setPositionPIDWrappingMaxInput(2 * Math.PI);
         turnPID.setPositionPIDWrappingMinInput(0);
-        //TODO TUNE
-        turnPID.setP(1.5);
-        turnPID.setI(0.0);
-        turnPID.setD(0.0); //0.1
-        turnPID.setFF(0.0);
+
+
+//        turnPID.setP(100);
+//        turnPID.setI(0.0);
+//        turnPID.setD(0.0);
+//        turnPID.setFF(0.0);
+
+        turnPIDSeparate.setP(10);
+        turnPIDSeparate.setD(0.0);
+        turnPIDSeparate.enableContinuousInput(-Math.PI, Math.PI);
 
         driveEncoder.setPositionConversionFactor(DRIVE_COEFFICIENT);
         steerEncoder.setPositionConversionFactor(STEER_COEFFICIENT);
 
         driveEncoder.setPosition(0);
-        steerEncoder.setPosition(Units.degreesToRadians(canCoder.getAbsolutePosition()) - steerOffsetRad);
+        steerEncoder.setPosition(Units.degreesToRadians(canCoder.getAbsolutePosition()));
 
         driveMotor.setIdleMode(CANSparkMax.IdleMode.kBrake);
         steerMotor.setIdleMode(CANSparkMax.IdleMode.kBrake);
@@ -93,8 +100,9 @@ public class SwerveModuleIOSparkMax implements SwerveModuleIO {
 
     @Override
     public void updateInputs(SwerveModuleIOInputs inputs) {
+        steerEncoder.setPosition(canCoder.getAbsolutePosition());
         inputs.drivePositionMeters = driveEncoder.getPosition();
-        inputs.steerPositionRad = canCoder.getPosition();
+        inputs.steerPositionRad = steerEncoder.getPosition();
         inputs.canCoderAbsolutePosition = canCoder.getAbsolutePosition();
     }
 
@@ -105,6 +113,14 @@ public class SwerveModuleIOSparkMax implements SwerveModuleIO {
 
     @Override
     public void setTargetSteerPosition(double targetSteerPosition) {
-        turnPID.setReference(targetSteerPosition, CANSparkMax.ControlType.kPosition);
+        double output = turnPIDSeparate.calculate(Math.toRadians(canCoder.getAbsolutePosition()), targetSteerPosition);
+        Logger.getInstance().recordOutput("PID/Target", turnPIDSeparate.getSetpoint());
+        Logger.getInstance().recordOutput("PID/Output", output);
+        steerMotor.setVoltage(output);
+        //turnPID.setReference(targetSteerPosition * (1/STEER_COEFFICIENT), CANSparkMax.ControlType.kPosition);
+    }
+    @Override
+    public double getMaxVelocity() {
+       return MAX_VELOCITY;
     }
 }

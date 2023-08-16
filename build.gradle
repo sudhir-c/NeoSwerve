@@ -18,8 +18,9 @@ deploy {
             // or from command line. If not found an exception will be thrown.
             // You can use getTeamOrDefault(team) instead of getTeamNumber if you
             // want to store a team number in this file.
-            team = project.frc.getTeamNumber()
+            team = 2910
             debug = project.frc.getDebugOrDefault(false)
+            checkImage = false
 
             artifacts {
                 // First part is artifact name, 2nd is artifact type

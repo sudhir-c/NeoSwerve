@@ -1,11 +1,14 @@
 package frc.robot;
 
 import com.kauailabs.navx.frc.AHRS;
+import edu.wpi.first.wpilibj.SPI;
+
+import javax.sound.sampled.Port;
 
 public class GyroNavX implements GyroIO {
     private AHRS navx;
     public GyroNavX() {
-        navx = new AHRS();
+        navx = new AHRS(SPI.Port.kOnboardCS0);
         navx.zeroYaw();
     }
 

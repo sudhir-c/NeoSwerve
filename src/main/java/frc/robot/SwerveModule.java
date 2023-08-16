@@ -26,7 +26,6 @@ public class SwerveModule {
         io.setTargetSteerPosition(resultAngle);
         io.setTargetDriveVelocity(state.speedMetersPerSecond);
 
-
     }
     public SwerveModulePosition getPosition() {
         return new SwerveModulePosition(inputs.drivePositionMeters, Rotation2d.fromRadians(inputs.steerPositionRad));

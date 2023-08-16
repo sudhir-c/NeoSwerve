@@ -7,6 +7,13 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import org.littletonrobotics.junction.LogFileUtil;
+import org.littletonrobotics.junction.LoggedRobot;
+import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
+import org.littletonrobotics.junction.networktables.NT4Publisher;
+import org.littletonrobotics.junction.wpilog.WPILOGReader;
+import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
 public class Drive extends SubsystemBase {
 
@@ -25,10 +32,10 @@ public class Drive extends SubsystemBase {
 
     private final SwerveModulePosition[] positions;
 
-    private ChassisSpeeds targetVelocity = new ChassisSpeeds();
+    private ChassisSpeeds targetVelocity = new ChassisSpeeds(0,0,0);
 
     private GyroIO gyroIO;
-    private GyroIOInputsAutoLogged gyroInputs;
+    private GyroIOInputsAutoLogged gyroInputs = new GyroIOInputsAutoLogged();
 
     public Drive(
             GyroIO gyro,
@@ -70,13 +77,23 @@ public class Drive extends SubsystemBase {
         for (int i = 0; i < modules.length; i++) {
             modules[i].updateInputs();
         }
-
         SwerveModuleState[] optimized = new SwerveModuleState[4];
+
         states = kinematics.toSwerveModuleStates(targetVelocity);
         SwerveDriveKinematics.desaturateWheelSpeeds(states, maxVelocity);
         for (int i = 0; i < optimized.length; i++) {
             optimized[i] = SwerveModuleState.optimize(states[i], modules[i].getPosition().angle);
-            modules[i].setTargetState(optimized[i]);
+            if (i != 1) {
+                modules[i].setTargetState(optimized[i]);
+            }
+        }
+//        for (int i = 0; i < 4; i++) {
+//            optimized[i] = new SwerveModuleState(0, new Rotation2d(0));
+//            modules[i].setTargetState(optimized[i]);
+//        }
+        for (int i = 0; i < 4; i++) {
+            Logger.getInstance().recordOutput("Drive/DesiredState" + i + "Speed" , optimized[i].speedMetersPerSecond);
+            Logger.getInstance().recordOutput("Drive/DesiredState" + i + "Angle" , optimized[i].angle.getDegrees());
         }
     }
 
