@@ -73,7 +73,8 @@ public class Drive extends SubsystemBase {
 
     @Override
     public void periodic() {
-       gyroIO.updateInputs(gyroInputs);
+        gyroIO.updateInputs(gyroInputs);
+        Logger.getInstance().processInputs("Gyro/", gyroInputs);
         for (int i = 0; i < modules.length; i++) {
             modules[i].updateInputs();
         }
@@ -83,15 +84,11 @@ public class Drive extends SubsystemBase {
         SwerveDriveKinematics.desaturateWheelSpeeds(states, maxVelocity);
         for (int i = 0; i < optimized.length; i++) {
             optimized[i] = SwerveModuleState.optimize(states[i], modules[i].getPosition().angle);
-            if (i != 1) {
-                modules[i].setTargetState(optimized[i]);
-            }
+            //modules[i].setTargetState(optimized[i]);
+            modules[i].setTargetState(new SwerveModuleState(0, new Rotation2d(0)));
         }
-//        for (int i = 0; i < 4; i++) {
-//            optimized[i] = new SwerveModuleState(0, new Rotation2d(0));
-//            modules[i].setTargetState(optimized[i]);
-//        }
         for (int i = 0; i < 4; i++) {
+            Logger.getInstance().recordOutput("Drive/DesiredState" + i, optimized[i]);
             Logger.getInstance().recordOutput("Drive/DesiredState" + i + "Speed" , optimized[i].speedMetersPerSecond);
             Logger.getInstance().recordOutput("Drive/DesiredState" + i + "Angle" , optimized[i].angle.getDegrees());
         }
@@ -112,5 +109,7 @@ public class Drive extends SubsystemBase {
     public Rotation2d getRotation() {
         return Rotation2d.fromDegrees(gyroInputs.yaw);
     }
+
+    public void zeroYaw() {gyroIO.zeroYaw();}
 
 }

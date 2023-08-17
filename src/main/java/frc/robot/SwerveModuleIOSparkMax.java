@@ -66,8 +66,8 @@ public class SwerveModuleIOSparkMax implements SwerveModuleIO {
 //        turnPID.setD(0.0);
 //        turnPID.setFF(0.0);
 
-        turnPIDSeparate.setP(10);
-        turnPIDSeparate.setD(0.0);
+        turnPIDSeparate.setP(5.0);
+        turnPIDSeparate.setD(0.1);
         turnPIDSeparate.enableContinuousInput(-Math.PI, Math.PI);
 
         driveEncoder.setPositionConversionFactor(DRIVE_COEFFICIENT);
