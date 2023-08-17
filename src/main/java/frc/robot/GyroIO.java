@@ -9,10 +9,10 @@ public interface GyroIO {
 
     @AutoLog
     class GyroIOInputs {
-        public double yaw = 10;
-        public double pitch = 10;
-        public double roll = 10;
-        public double angularVelocity = 10;
+        public double yaw = 0;
+        public double pitch = 0;
+        public double roll = 0;
+        public double angularVelocity = 0;
     }
 
 }

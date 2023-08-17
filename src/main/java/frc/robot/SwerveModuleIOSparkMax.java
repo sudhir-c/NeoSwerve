@@ -102,7 +102,7 @@ public class SwerveModuleIOSparkMax implements SwerveModuleIO {
     public void updateInputs(SwerveModuleIOInputs inputs) {
         steerEncoder.setPosition(canCoder.getAbsolutePosition());
         inputs.drivePositionMeters = driveEncoder.getPosition();
-        inputs.steerPositionRad = steerEncoder.getPosition();
+        inputs.steerPositionRad = Math.toRadians(steerEncoder.getPosition());
         inputs.canCoderAbsolutePosition = canCoder.getAbsolutePosition();
     }
 
@@ -113,6 +113,7 @@ public class SwerveModuleIOSparkMax implements SwerveModuleIO {
 
     @Override
     public void setTargetSteerPosition(double targetSteerPosition) {
+        turnPIDSeparate.enableContinuousInput(0, 2 * Math.PI);
         double output = turnPIDSeparate.calculate(Math.toRadians(canCoder.getAbsolutePosition()), targetSteerPosition);
         Logger.getInstance().recordOutput("PID/Target", turnPIDSeparate.getSetpoint());
         Logger.getInstance().recordOutput("PID/Output", output);

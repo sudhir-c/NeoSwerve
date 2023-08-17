@@ -34,14 +34,14 @@ public class DefaultDrive extends CommandBase {
         double yV;
         double thetaV;
 
-        xV = x.getAsDouble() * 0.4;
-        yV = y.getAsDouble() * 0.4;
-        thetaV = theta.getAsDouble() * 0.2;
-        //ChassisSpeeds target = ChassisSpeeds.fromFieldRelativeSpeeds(xV, yV, thetaV, drive.getRotation());
+        xV = x.getAsDouble();
+        yV = y.getAsDouble();
+        thetaV = theta.getAsDouble();
+        ChassisSpeeds target = ChassisSpeeds.fromFieldRelativeSpeeds(xV, yV, thetaV, drive.getRotation());
         Logger.getInstance().recordOutput("Drive/TargetXVelocity", xV);
         Logger.getInstance().recordOutput("Drive/TargetYVelocity", yV);
         Logger.getInstance().recordOutput("Drive/TargetThetaVelocity", thetaV);
-        ChassisSpeeds target = new ChassisSpeeds(xV, yV, thetaV);
+        //ChassisSpeeds target = new ChassisSpeeds(xV, yV, thetaV);
         drive.setTargetVelocity(target);
     }
 

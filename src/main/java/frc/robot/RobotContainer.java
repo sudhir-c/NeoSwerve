@@ -2,6 +2,7 @@ package frc.robot;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 public class RobotContainer {
@@ -16,6 +17,7 @@ public class RobotContainer {
                 () -> -adjustJoystickValue(controller.getRightX() * drive.getMaxAngularVelocity()),
                 controller::getRightStickButton
                 ));
+        configureBindings();
     }
 
     private static double adjustJoystickValue(double v) {
@@ -25,6 +27,6 @@ public class RobotContainer {
     }
 
     private void configureBindings() {
-
+        new Trigger(controller::getAButton).onTrue(new InstantCommand(() -> drive.zeroYaw()));
     }
 }

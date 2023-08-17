@@ -1,6 +1,8 @@
 package frc.robot;
 
 import com.kauailabs.navx.frc.AHRS;
+import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.SerialPort;
 
@@ -17,7 +19,7 @@ public class GyroNavX implements GyroIO {
 
     @Override
     public void updateInputs(GyroIOInputs inputs) {
-        inputs.yaw = -1 * navx.getAngle() % 360;
+        inputs.yaw = (navx.getYaw() + 180) % 360;
         inputs.pitch = navx.getPitch();
         inputs.roll = navx.getRoll();
         inputs.angularVelocity = navx.getVelocityY();
@@ -25,6 +27,7 @@ public class GyroNavX implements GyroIO {
 
     @Override
     public void zeroYaw() {
+        //navx.setAngleAdjustment(-(navx.getYaw() % 360));
         navx.zeroYaw();
     }
 }

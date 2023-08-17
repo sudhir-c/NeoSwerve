@@ -84,13 +84,13 @@ public class Drive extends SubsystemBase {
         SwerveDriveKinematics.desaturateWheelSpeeds(states, maxVelocity);
         for (int i = 0; i < optimized.length; i++) {
             optimized[i] = SwerveModuleState.optimize(states[i], modules[i].getPosition().angle);
-            //modules[i].setTargetState(optimized[i]);
-            modules[i].setTargetState(new SwerveModuleState(0, new Rotation2d(0)));
+            modules[i].setTargetState(optimized[i]);
+            //modules[i].setTargetState(new SwerveModuleState(0, optimized[i].angle));
         }
         for (int i = 0; i < 4; i++) {
             Logger.getInstance().recordOutput("Drive/DesiredState" + i, optimized[i]);
             Logger.getInstance().recordOutput("Drive/DesiredState" + i + "Speed" , optimized[i].speedMetersPerSecond);
-            Logger.getInstance().recordOutput("Drive/DesiredState" + i + "Angle" , optimized[i].angle.getDegrees());
+            Logger.getInstance().recordOutput("Drive/DesiredState" + i + "AngleDeg" , optimized[i].angle.getDegrees());
         }
     }
 
