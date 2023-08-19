@@ -17,9 +17,15 @@ public class GyroNavX implements GyroIO {
         navx.zeroYaw();
     }
 
+
     @Override
     public void updateInputs(GyroIOInputs inputs) {
-        inputs.yaw = (navx.getYaw() + 180) % 360;
+        inputs.yaw = (navx.getYaw()) % 360;
+        if (inputs.yaw < 0) {
+            inputs.yaw+= 360;
+        }
+
+         // + 180
         inputs.pitch = navx.getPitch();
         inputs.roll = navx.getRoll();
         inputs.angularVelocity = navx.getVelocityY();

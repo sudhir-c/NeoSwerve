@@ -85,7 +85,6 @@ public class Drive extends SubsystemBase {
         for (int i = 0; i < optimized.length; i++) {
             optimized[i] = SwerveModuleState.optimize(states[i], modules[i].getPosition().angle);
             modules[i].setTargetState(optimized[i]);
-            //modules[i].setTargetState(new SwerveModuleState(0, optimized[i].angle));
         }
         for (int i = 0; i < 4; i++) {
             Logger.getInstance().recordOutput("Drive/DesiredState" + i, optimized[i]);
